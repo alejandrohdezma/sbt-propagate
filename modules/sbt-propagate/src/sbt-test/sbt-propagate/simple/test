@@ -1,0 +1,3 @@
+> mdoc
+$ must-mirror target/mdoc/README.md README.md
+> scripted

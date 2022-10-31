@@ -1,0 +1,12 @@
+# Default .gitignore for the project.
+
+### Scala ###
+
+.bloop/
+**/.bloop/
+project/.bloop/
+.bsp
+*.metals
+.metals/
+**/metals.sbt
+project/metals.sbt

@@ -1,0 +1,16 @@
+# Don't edit this file!
+# It is automatically updated after every release of https://github.com/my-org/my-repo
+# If you want to suggest a change, please open a PR or issue in that repository
+
+# Default .gitignore for the project.
+
+### Scala ###
+
+.bloop/
+**/.bloop/
+project/.bloop/
+.bsp
+*.metals
+.metals/
+**/metals.sbt
+project/metals.sbt

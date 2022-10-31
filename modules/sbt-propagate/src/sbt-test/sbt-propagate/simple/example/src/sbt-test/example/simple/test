@@ -1,0 +1,5 @@
+>generateMyFiles
+$ must-mirror expected/file_1.md docs/propagated/file_1.md
+$ must-mirror expected/file_2.md docs/propagated/file_2.md
+$ must-mirror expected/.gitignore .gitignore
+$ must-mirror expected/configuration.xml src/main/resources/configuration.xml
