@@ -16,7 +16,7 @@ SBT plugin to help creating resource-generating plugins
 Add the following line to your `plugins.sbt` file:
 
 ```sbt
-addSbtPlugin("com.alejandrohdezma" % "sbt-propagate" % "0.0.0")
+addSbtPlugin("com.alejandrohdezma" % "sbt-propagate" % "0.1.0")
 ```
 
 ## How to use this project?
