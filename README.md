@@ -9,6 +9,7 @@ SBT plugin to help creating resource-generating plugins
   - [Resources documentation](#resources-documentation)
   - [Transform resource's contents/paths](#transform-resources-contentspaths)
   - [Using extra information](#using-extra-information)
+  - [Excluding files](#excluding-files)
   - [Generating outside SBT](#generating-outside-sbt)
 
 ## Installation
@@ -16,7 +17,7 @@ SBT plugin to help creating resource-generating plugins
 Add the following line to your `plugins.sbt` file:
 
 ```sbt
-addSbtPlugin("com.alejandrohdezma" % "sbt-propagate" % "0.1.0")
+addSbtPlugin("com.alejandrohdezma" % "sbt-propagate" % "0.2.0")
 ```
 
 ## How to use this project?
@@ -121,7 +122,7 @@ object MyGeneratorPlugin extends AutoPlugin with ResourceGenerator[Unit] {
   override def trigger = allRequirements
 
   override def buildSettings = Seq(
-    generateMyFiles := generate((), streams.value.log.info(_))
+    generateMyFiles := generate((), logger = streams.value.log.info(_))
   )
 
 }
@@ -183,7 +184,7 @@ object MyGeneratorPlugin extends AutoPlugin with ResourceGenerator[Unit] {
   override def trigger = allRequirements
 
   override def buildSettings = Seq(
-    generateMyFiles := generate((), streams.value.log.info(_))
+    generateMyFiles := generate((), logger = streams.value.log.info(_))
   )
 
   override def repository: Option[String] = Some("my-org/my-repo")
@@ -211,7 +212,7 @@ object MyGeneratorPlugin extends AutoPlugin with ResourceGenerator[Unit] {
   override def trigger = allRequirements
 
   override def buildSettings = Seq(
-    generateMyFiles := generate((), streams.value.log.info(_))
+    generateMyFiles := generate((), logger = streams.value.log.info(_))
   )
 
 
@@ -245,7 +246,7 @@ object MyGeneratorPlugin extends AutoPlugin with ResourceGenerator[Unit] {
   override def trigger = allRequirements
 
   override def buildSettings = Seq(
-    generateMyFiles := generate((), streams.value.log.info(_))
+    generateMyFiles := generate((), logger = streams.value.log.info(_))
   )
 
   override def resourceTransformers = ResourceTransformers {
@@ -280,7 +281,7 @@ object MyGeneratorPlugin extends AutoPlugin with ResourceGenerator[Unit] {
   override def trigger = allRequirements
 
   override def buildSettings = Seq(
-    generateMyFiles := generate((), streams.value.log.info(_))
+    generateMyFiles := generate((), logger = streams.value.log.info(_))
   )
 
   override def noHeaderFiles: List[String] = super.noHeaderFiles :+ "some_file.md"
@@ -348,7 +349,7 @@ object MyGeneratorPlugin extends AutoPlugin with ResourceGenerator[Unit] {
   override def trigger = allRequirements
 
   override def buildSettings = Seq(
-    generateMyFiles := generate((), streams.value.log.info(_))
+    generateMyFiles := generate((), logger = streams.value.log.info(_))
   )
 
   override def resourceTransformers = super.resourceTransformers.and {
@@ -384,12 +385,72 @@ object MyGeneratorPlugin extends AutoPlugin with ResourceGenerator[String] {
   override def trigger = allRequirements
 
   override def buildSettings = Seq(
-    generateMyFiles := generate(name.value, streams.value.log.info(_))
+    generateMyFiles := generate(
+      extras = name.value, logger = streams.value.log.info(_))
   )
 
   override def resourceTransformers = super.resourceTransformers.and {
     case ((path, name), content) if path.extension == "md" =>
       path -> name -> content.replace("{{name}}", name)
+  }
+
+}
+```
+
+### Excluding files
+
+You can pass a function to `generate` to decide when a file should be excluded,
+and thus, not generated. This function receives both the final path and content
+for the file (after all `ResourceTransformers` are applied) and returns a
+`Boolean`. Return `true` when you want a file excluded.
+
+For example if we want to exclude files based on glob patterns, we could do it
+like:
+
+```scala
+import java.nio.file._
+
+import sbt._
+import sbt.Keys._
+
+import com.alejandrohdezma.resource.generator.ResourceGenerator
+
+object MyGeneratorPlugin extends AutoPlugin with ResourceGenerator[String] {
+
+  object autoImport {
+
+    val excludedFiles = settingKey[List[String]] {
+      "List of glob patterns. Files matching any of the patterns in this list" +
+        " will be excluded from generation"
+    }
+
+  }
+
+  val generateMyFiles = taskKey[Unit] {
+    s"Generates the following files: ${resources.mkString(", ")}"
+  }
+
+  override def trigger = allRequirements
+
+  import autoImport._
+
+  override def buildSettings = Seq(
+    excludedFiles := Nil,
+    generateMyFiles := generate(
+      extras = name.value,
+      excludeFile = globPatterns.value,
+      logger = streams.value.log.info(_)
+    )
+  )
+
+  private val globPatterns = Def.setting {
+    val fileSystem = FileSystems.getDefault()
+
+    val matchers = excludedFiles.value
+      .map("glob:" + _)
+      .map(fileSystem.getPathMatcher(_))
+
+    (path: Path, _: String) => matchers.find(_.matches(path)).nonEmpty
   }
 
 }
