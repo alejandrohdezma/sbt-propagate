@@ -14,6 +14,7 @@ lazy val example = project
   })
   .settings(resourcesToPropagate += "docs-to-propagate/file1.md" -> "docs/propagated/file_1.md")
   .settings(resourcesToPropagate += "docs-to-propagate/file2.md" -> "docs/propagated/file_2.md")
+  .settings(resourcesToPropagate += "docs-to-propagate/file3.md" -> "docs/propagated/file_3.md")
   .settings(resourcesToPropagate += ".gitignore_global" -> ".gitignore")
   .settings(resourcesToPropagate += "configuration.xml" -> "configuration.xml")
 

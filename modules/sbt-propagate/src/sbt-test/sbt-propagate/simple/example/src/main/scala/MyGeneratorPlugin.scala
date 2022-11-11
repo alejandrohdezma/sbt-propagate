@@ -1,10 +1,22 @@
 package my.org.sbt
 
+import java.nio.file._
+
 import sbt.Keys._
+import sbt.Def
 
 import com.alejandrohdezma.resource.generator.ResourceGenerator
 
 object MyGeneratorPlugin extends sbt.AutoPlugin with ResourceGenerator[(String, String)] {
+
+  object autoImport {
+
+    val excludedFiles = sbt.settingKey[List[String]] {
+      "List of glob patterns. Files matching any of the patterns in this list" +
+        " will be excluded from generation"
+    }
+
+  }
 
   val generateMyFiles = sbt.taskKey[Unit](s"Generates the following files: ${resources.mkString(", ")}")
 
@@ -12,8 +24,15 @@ object MyGeneratorPlugin extends sbt.AutoPlugin with ResourceGenerator[(String, 
 
   override def trigger = allRequirements
 
+  import autoImport._
+
   override def buildSettings = Seq(
-    generateMyFiles := generate((name.value, organization.value), streams.value.log.info(_))
+    excludedFiles := Nil,
+    generateMyFiles := generate(
+      extras = (name.value, organization.value),
+      excludeFile = globPatterns.value,
+      logger = streams.value.log.info(_)
+    )
   )
 
   override def resourceTransformers = ResourceTransformers {
@@ -33,5 +52,15 @@ object MyGeneratorPlugin extends sbt.AutoPlugin with ResourceGenerator[(String, 
       case ((path, (name, organization)), content) if path.extension == "md" =>
         path -> ((name, organization)) -> content.replace("{{name}}", name).replace("{{organization}}", organization)
     }
+
+  private val globPatterns = Def.setting {
+    val fileSystem = FileSystems.getDefault()
+
+    val matchers = excludedFiles.value
+      .map("glob:" + _)
+      .map(fileSystem.getPathMatcher(_))
+
+    (path: Path, _: String) => matchers.find(_.matches(path)).nonEmpty
+  }
 
 }
