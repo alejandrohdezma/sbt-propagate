@@ -14,6 +14,12 @@ This is file 2.
 It is a very important file.
 Although not as important as file 1.
 
+### :octocat: [docs-to-propagate/file3.md](https://github.com/my-org/my-repo/blob/main/docs-to-propagate/file3.md) (copied as docs/propagated/file_3.md)
+
+This is file 3.
+
+It is not an important file.
+
 ### :octocat: [.gitignore_global](https://github.com/my-org/my-repo/blob/main/.gitignore_global) (copied as .gitignore)
 
 Default .gitignore for the project.

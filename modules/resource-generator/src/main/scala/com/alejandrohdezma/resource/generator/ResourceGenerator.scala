@@ -16,11 +16,11 @@
 
 package com.alejandrohdezma.resource.generator
 
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.Properties
 
 import scala.io.Source
-import java.nio.file.Files
-import java.nio.file.Path
 
 /** This trait allows you to generate resources stored with the `ResourceGeneratorPlugin` in the directory where
   * `generate` is executed. Because of this, you will probably want to use this `trait` in a project with such a plugin
@@ -60,6 +60,7 @@ import java.nio.file.Path
   * }
   * }}}
   */
+@SuppressWarnings(Array("scalafix:DisableSyntax.valInAbstract", "scalafix:Disable.toString"))
 trait ResourceGenerator[A] {
 
   /** The repository generating the files. It is used on the default headers. Will not be included if `None`. */
@@ -80,6 +81,7 @@ trait ResourceGenerator[A] {
     * The default transformers just add headers for MarkDown files (using `[comment]: <> ("my comment")`) and for any
     * other file (using `#`).
     */
+  @SuppressWarnings(Array("scalafix:Disable.Option.get", "scalafix:DisableSyntax.=="))
   def resourceTransformers: ResourceTransformers = {
     case ((path, extras), content) if path.extension == "md" && repository.isEmpty && !isNoHeaderFile(path) =>
       path -> extras -> s"""[comment]: <> (Don't edit this file! It is automatically updated)
@@ -109,25 +111,35 @@ trait ResourceGenerator[A] {
     * `resource-generator-metadata.properties`.
     *
     * @param extras
-    *   Extra attributes to be passed on to `resourceTransformers`
+    *   Extra attributes to be passed on to `resourceTransformers`.
+    * @param excludeFile
+    *   Function used to calculate when a file should not be generated.
     * @param logger
     *   Logger used to report each file generated. Defaults to `println`. If using from SBT one can used
     *   `sbt.Keys.streams.value.log.info`.
     */
-  def generate(extras: A, logger: String => Unit = println): Unit = resources.foreach { resource =>
-    val rawContent = Source.fromResource(resource, super.getClass().getClassLoader()).mkString
+  @SuppressWarnings(Array("scalafix:DisableSyntax.defaultArgs", "scalafix:Disable.blocking.io"))
+  def generate(
+      extras: A,
+      excludeFile: (Path, String) => Boolean = (_, _) => false,
+      logger: String => Unit = System.out.println
+  ): Unit =
+    resources.foreach { resource =>
+      val rawContent = Source.fromResource(resource, super.getClass().getClassLoader()).mkString
 
-    val data = ((Path.of(resource), extras), rawContent)
+      val data = ((Path.of(resource), extras), rawContent)
 
-    val ((destination, _), content) = resourceTransformers.lift(data).getOrElse(data)
+      val ((destination, _), content) = resourceTransformers.lift(data).getOrElse(data)
 
-    // Ensure parent directories exist before trying to write the file
-    Option(destination.getParent()).foreach(Files.createDirectories(_))
+      if (!excludeFile(destination, content)) {
+        // Ensure parent directories exist before trying to write the file
+        Option(destination.getParent()).foreach(Files.createDirectories(_))
 
-    Files.writeString(destination, content)
+        Files.writeString(destination, content)
 
-    logger(s"Generated file $destination" + repository.map(" from " + _).getOrElse(""))
-  }
+        logger(s"Generated file $destination" + repository.map(" from " + _).getOrElse(""))
+      }
+    }
 
   /** List of resources being propagated */
   lazy val resources: List[String] =
@@ -136,6 +148,7 @@ trait ResourceGenerator[A] {
   private def isNoHeaderFile(path: Path) =
     noHeaderFiles.map(_.toLowerCase()).contains(path.getFileName().toString().toLowerCase())
 
+  @SuppressWarnings(Array("scalafix:Disable.blocking.io"))
   private lazy val `resource-generator-metadata.properties` = {
     val properties = new Properties()
 
