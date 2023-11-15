@@ -9,7 +9,7 @@ addCommandAlias("ci-publish", "github; ci-release")
 lazy val documentation = project
   .enablePlugins(MdocPlugin, SbtPlugin)
   .dependsOn(`sbt-propagate`, `resource-generator`)
-  .settings(addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.4.0"))
+  .settings(addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.5.1"))
   .settings(mdocOut := file("."))
 
 lazy val `sbt-propagate` = module
