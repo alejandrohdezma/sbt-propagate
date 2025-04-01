@@ -1,2 +1,2 @@
 addSbtPlugin("com.alejandrohdezma" % "sbt-propagate" % sys.props("plugin.version"))
-addSbtPlugin("org.scalameta"       % "sbt-mdoc"      % "2.6.4")
+addSbtPlugin("org.scalameta"       % "sbt-mdoc"      % "2.6.5")
