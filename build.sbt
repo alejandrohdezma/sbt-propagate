@@ -10,7 +10,7 @@ addCommandAlias("ci-publish", "versionCheck; github; ci-release")
 lazy val documentation = project
   .enablePlugins(MdocPlugin, SbtPlugin)
   .dependsOn(`sbt-propagate`, `resource-generator`)
-  .settings(addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.7.2"))
+  .settings(addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.8.2"))
 
 lazy val `sbt-propagate` = module
   .enablePlugins(SbtPlugin)
@@ -21,4 +21,4 @@ lazy val `sbt-propagate` = module
   .settings(buildInfoPackage := "com.alejandrohdezma.sbt.propagate")
 
 lazy val `resource-generator` = module
-  .settings(crossScalaVersions := Seq("2.12.20", "2.13.16", "3.3.6"))
+  .settings(crossScalaVersions := Seq("2.12.21", "2.13.18", "3.3.7"))
