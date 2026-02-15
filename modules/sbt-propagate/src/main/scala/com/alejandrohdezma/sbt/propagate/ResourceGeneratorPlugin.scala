@@ -53,7 +53,7 @@ object ResourceGeneratorPlugin extends AutoPlugin {
   import autoImport._
 
   override def projectSettings: Seq[Setting[_]] = List(
-    libraryDependencies += "com.alejandrohdezma" %% "resource-generator" % BuildInfo.version,
+    libraryDependencies                    += "com.alejandrohdezma" %% "resource-generator" % BuildInfo.version,
     resourcesToPropagateDescriptionScraper := Map(
       "md" -> (_.takeWhile(_.startsWith("[comment]: <>")).map(_.stripPrefix("[comment]: <> (").stripSuffix(")"))),
       "*"  -> (_.takeWhile(_.startsWith("#")).map(_.stripPrefix("# ").stripPrefix("#")))
@@ -71,7 +71,7 @@ object ResourceGeneratorPlugin extends AutoPlugin {
     },
     resourcesToPropagate                   := Nil,
     Compile / unmanagedResourceDirectories += target.value / "resources-to-propagate",
-    Compile / resourceGenerators += Def.task {
+    Compile / resourceGenerators           += Def.task {
       val file = target.value / "resources-to-propagate" / "resource-generator-metadata.properties"
 
       val properties = new Properties()
