@@ -52,7 +52,7 @@ object ResourceGeneratorPlugin extends AutoPlugin {
 
   import autoImport._
 
-  override def projectSettings: Seq[Setting[_]] = List(
+  override def projectSettings = List(
     libraryDependencies                    += "com.alejandrohdezma" %% "resource-generator" % BuildInfo.version,
     resourcesToPropagateDescriptionScraper := Map(
       "md" -> (_.takeWhile(_.startsWith("[comment]: <>")).map(_.stripPrefix("[comment]: <> (").stripSuffix(")"))),
@@ -80,7 +80,7 @@ object ResourceGeneratorPlugin extends AutoPlugin {
 
       IO.write(properties, "Metadata for sbt-propagate SBT plugin", file)
 
-      List(file)
+      Seq(file)
     }.taskValue,
     Compile / resourceGenerators += Def.task {
       resourcesToPropagate.value.map { case (resource, destination) =>
@@ -91,7 +91,7 @@ object ResourceGeneratorPlugin extends AutoPlugin {
         IO.copyFile(file(resource), resourceFile)
 
         resourceFile
-      }
+      }: Seq[File]
     }.taskValue
   )
 
