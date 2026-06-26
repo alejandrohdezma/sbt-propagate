@@ -1,7 +1,6 @@
-ThisBuild / scalaVersion                  := _root_.scalafix.sbt.BuildInfo.scala212
-ThisBuild / organization                  := "com.alejandrohdezma"
-ThisBuild / pluginCrossBuild / sbtVersion := "1.2.8"
-ThisBuild / versionPolicyIntention        := Compatibility.BinaryAndSourceCompatible
+ThisBuild / scalaVersion           := _root_.scalafix.sbt.BuildInfo.scala212
+ThisBuild / organization           := "com.alejandrohdezma"
+ThisBuild / versionPolicyIntention := Compatibility.BinaryAndSourceCompatible
 
 addCommandAlias("ci-test", "fix --check; versionPolicyCheck; mdoc; publishLocal; scripted")
 addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
@@ -14,6 +13,8 @@ lazy val documentation = project
 
 lazy val `sbt-propagate` = module
   .enablePlugins(SbtPlugin)
+  .settings(crossScalaVersions := Seq(scalaVersion.value, "3.8.4"))
+  .settings(pluginCrossBuild / sbtVersion := scalaVersion.value.on(2)("1.12.12").getOrElse("2.0.0"))
   .settings(scriptedBatchExecution := false)
   .settings(scriptedBufferLog := false)
   .settings(scriptedLaunchOpts += s"-Dplugin.version=${version.value}")
