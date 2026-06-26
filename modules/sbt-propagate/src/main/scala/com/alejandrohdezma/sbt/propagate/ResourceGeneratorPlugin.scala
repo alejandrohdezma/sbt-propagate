@@ -21,9 +21,9 @@ import java.util.Properties
 import sbt.Keys._
 import sbt._
 
-/** This plugin copies the resources listed in `resourcesToPropagate` to `target/resources-to-propagate` and adds that
-  * folder as a resources directory. It also creates a `resource-generator-metadata.properties` containing the name of
-  * the propagated resources that is then picked-up by `ResourceGenerator` to generate the results.
+/** This plugin copies the resources listed in `resourcesToPropagate` into the managed resources directory so they are
+  * packaged into the artifact. It also creates a `resource-generator-metadata.properties` containing the name of the
+  * propagated resources that is then picked-up by `ResourceGenerator` to generate the results.
   *
   * It also provides a `resourcesToPropagateDocs` setting that contains the same elements as `resourcesToPropagate` but
   * including each file's description.
@@ -52,7 +52,7 @@ object ResourceGeneratorPlugin extends AutoPlugin {
 
   import autoImport._
 
-  override def projectSettings: Seq[Setting[_]] = List(
+  override def projectSettings = List(
     libraryDependencies                    += "com.alejandrohdezma" %% "resource-generator" % BuildInfo.version,
     resourcesToPropagateDescriptionScraper := Map(
       "md" -> (_.takeWhile(_.startsWith("[comment]: <>")).map(_.stripPrefix("[comment]: <> (").stripSuffix(")"))),
@@ -69,10 +69,9 @@ object ResourceGeneratorPlugin extends AutoPlugin {
 
       (resource, destination, description.mkString("\n"))
     },
-    resourcesToPropagate                   := Nil,
-    Compile / unmanagedResourceDirectories += target.value / "resources-to-propagate",
-    Compile / resourceGenerators           += Def.task {
-      val file = target.value / "resources-to-propagate" / "resource-generator-metadata.properties"
+    resourcesToPropagate         := Nil,
+    Compile / resourceGenerators += Def.task {
+      val file = (Compile / resourceManaged).value / "resource-generator-metadata.properties"
 
       val properties = new Properties()
 
@@ -80,18 +79,18 @@ object ResourceGeneratorPlugin extends AutoPlugin {
 
       IO.write(properties, "Metadata for sbt-propagate SBT plugin", file)
 
-      List(file)
+      Seq(file)
     }.taskValue,
     Compile / resourceGenerators += Def.task {
       resourcesToPropagate.value.map { case (resource, destination) =>
-        val resourceFile = target.value / "resources-to-propagate" / destination
+        val resourceFile = (Compile / resourceManaged).value / destination
 
         streams.value.log.info(s"Copying $resource to $resourceFile")
 
         IO.copyFile(file(resource), resourceFile)
 
         resourceFile
-      }
+      }: Seq[File]
     }.taskValue
   )
 
