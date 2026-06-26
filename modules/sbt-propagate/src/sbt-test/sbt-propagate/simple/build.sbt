@@ -1,6 +1,10 @@
 ThisBuild / publish / skip := true
-enablePlugins(MdocPlugin)
-mdocVariables += "PROPAGATED_RESOURCES" -> propagatedResouces.value
+
+lazy val root = (project in file("."))
+  .enablePlugins(MdocPlugin)
+  .aggregate(example)
+  .settings(mdocOut := baseDirectory.value / "target" / "mdoc")
+  .settings(mdocVariables += "PROPAGATED_RESOURCES" -> propagatedResouces.value)
 
 lazy val example = project
   .settings(publish / skip := false)
@@ -9,7 +13,7 @@ lazy val example = project
   .settings(scriptedBufferLog := false)
   .settings(scriptedLaunchOpts += s"-Dplugin.version=${version.value}")
   .enablePlugins(ResourceGeneratorPlugin)
-  .settings(resourcesToPropagateDescriptionScraper += "xml" -> { lines: List[String] =>
+  .settings(resourcesToPropagateDescriptionScraper += "xml" -> { (lines: List[String]) =>
     lines.drop(1).takeWhile(_.startsWith("<!--")).map(_.stripPrefix("<!-- ").stripSuffix(" -->"))
   })
   .settings(resourcesToPropagate += "docs-to-propagate/file1.md" -> "docs/propagated/file_1.md")

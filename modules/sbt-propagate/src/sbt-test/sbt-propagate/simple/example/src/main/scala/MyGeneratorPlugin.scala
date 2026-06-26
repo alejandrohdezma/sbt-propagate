@@ -18,7 +18,7 @@ object MyGeneratorPlugin extends sbt.AutoPlugin with ResourceGenerator[(String, 
 
   }
 
-  val generateMyFiles = sbt.taskKey[Unit](s"Generates the following files: ${resources.mkString(", ")}")
+  @transient val generateMyFiles = sbt.taskKey[Unit](s"Generates the following files: ${resources.mkString(", ")}")
 
   override def repository: Option[String] = Some("my-org/my-repo")
 
