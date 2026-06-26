@@ -2,7 +2,7 @@ ThisBuild / scalaVersion           := _root_.scalafix.sbt.BuildInfo.scala212
 ThisBuild / organization           := "com.alejandrohdezma"
 ThisBuild / versionPolicyIntention := Compatibility.BinaryAndSourceCompatible
 
-addCommandAlias("ci-test", "fix --check; versionPolicyCheck; mdoc; publishLocal; scripted")
+addCommandAlias("ci-test", "fix --check; +versionPolicyCheck; +publishLocal; +sbt-propagate/scripted; mdoc")
 addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "versionCheck; github; ci-release")
 
