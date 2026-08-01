@@ -9,12 +9,12 @@ addCommandAlias("ci-publish", "versionCheck; github; ci-release")
 lazy val documentation = project
   .enablePlugins(MdocPlugin, SbtPlugin)
   .dependsOn(`sbt-propagate`, `resource-generator`)
-  .settings(addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.9.0"))
+  .settings(addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.9.1"))
 
 lazy val `sbt-propagate` = module
   .enablePlugins(SbtPlugin)
   .settings(crossScalaVersions := Seq(scalaVersion.value, "3.8.4"))
-  .settings(pluginCrossBuild / sbtVersion := scalaVersion.value.on(2)("1.12.13").getOrElse("2.0.0"))
+  .settings(pluginCrossBuild / sbtVersion := scalaVersion.value.on(2)("1.12.14").getOrElse("2.0.0"))
   .settings(scriptedBatchExecution := false)
   .settings(scriptedBufferLog := false)
   .settings(scriptedLaunchOpts += s"-Dplugin.version=${version.value}")
